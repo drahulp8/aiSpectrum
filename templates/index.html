@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Spectrum - Compare AI Model Responses</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        mono: ['JetBrains Mono', 'Fira Code', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+                        sans: ['Inter', 'Helvetica', 'Arial', 'sans-serif']
+                    },
+                    colors: {
+                        terminal: {
+                            bg: '#0F0F11',
+                            lighter: '#1A1A1D',
+                            text: '#F0F0F0',
+                            prompt: '#50FA7B',
+                            cursor: '#FFFFFF'
+                        },
+                        neon: {
+                            primary: '#00FFBB',
+                            secondary: '#9181F7',
+                            accent: '#00D1FF'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0F0F11;
+            color: #F4F4F6;
+            min-height: 100vh;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .markdown-content pre {
+            background-color: #1A1A1D;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            border: 1px solid #2D2D30;
+        }
+        .markdown-content code {
+            font-family: 'JetBrains Mono', 'Fira Code', 'Menlo', monospace;
+            color: #E4E4E4;
+        }
+        .markdown-content p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        .markdown-content h1, .markdown-content h2, .markdown-content h3, 
+        .markdown-content h4, .markdown-content h5, .markdown-content h6 {
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+            color: #E4E4E4;
+        }
+        .markdown-content h1 { font-size: 1.8rem; }
+        .markdown-content h2 { font-size: 1.6rem; }
+        .markdown-content h3 { font-size: 1.4rem; }
+        .markdown-content ul, .markdown-content ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .markdown-content li {
+            margin-bottom: 0.5rem;
+        }
+        .markdown-content blockquote {
+            border-left: 4px solid #9181F7;
+            padding-left: 1rem;
+            margin-bottom: 1rem;
+            background-color: #1A1A1D;
+            padding: 0.5rem 0.5rem 0.5rem 1rem;
+            border-radius: 0.25rem;
+        }
+        .sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        .content-shifted {
+            margin-left: 18rem;
+            transition: margin-left 0.3s ease-in-out;
+        }
+        .terminal-font {
+            font-family: 'JetBrains Mono', 'Fira Code', 'Menlo', monospace !important;
+        }
+        .model-container {
+            transition: all 0.3s ease;
+            border: 1px solid #2D2D30;
+        }
+        .query-history-item {
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            transition: background-color 0.2s ease;
+        }
+        .query-history-item:hover {
+            background-color: #2D2D30;
+        }
+        .hidden-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .hidden-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .hidden-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #4A4A4A;
+            border-radius: 4px;
+        }
+        .hidden-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: #5A5A5A;
+        }
+        .model-header {
+            border-bottom: 1px solid #2D2D30;
+        }
+        .model-checkbox:checked {
+            background-color: #9181F7;
+            background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+        }
+        .neon-border {
+            box-shadow: 0 0 5px #9181F7, 0 0 10px #9181F7;
+        }
+        .neon-text {
+            text-shadow: 0 0 5px #9181F7, 0 0 10px #9181F7;
+        }
+        .glass-effect {
+            background: rgba(26, 26, 29, 0.7);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        .api-tester-panel {
+            position: fixed;
+            top: 0;
+            right: -28rem;
+            width: 28rem;
+            height: 100vh;
+            transition: right 0.4s ease-in-out;
+            z-index: 50;
+        }
+        .api-tester-panel.open {
+            right: 0;
+        }
+        .summary-badge {
+            background: linear-gradient(135deg, #00FFBB, #9181F7);
+            color: #0F0F11;
+            font-weight: bold;
+        }
+        .gradient-btn {
+            background: linear-gradient(135deg, #9181F7, #00D1FF);
+            transition: all 0.3s ease;
+        }
+        .gradient-btn:hover {
+            background: linear-gradient(135deg, #00FFBB, #9181F7);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar fixed left-0 top-0 h-full w-72 bg-terminal-lighter border-r border-gray-800 z-50 shadow-xl overflow-y-auto hidden-scrollbar">
+            <div class="p-4 border-b border-gray-800">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-neon-secondary neon-text">AI Spectrum</h2>
+                    <button id="close-sidebar" class="text-gray-400 hover:text-white p-1 rounded">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- User Profile Section -->
+            <div id="user-profile" class="p-4 border-b border-gray-800">
+                <!-- Will be populated dynamically -->
+                <a href="/login" class="flex items-center space-x-2 text-neon-secondary hover:text-neon-primary">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Sign In</span>
+                </a>
+            </div>
+            
+            <!-- Model Selectors -->
+            <div class="p-4 border-b border-gray-800">
+                <h3 class="text-lg font-semibold mb-4 text-gray-300">Available Models</h3>
+                <div id="model-selectors" class="space-y-2">
+                    <!-- Will be populated dynamically -->
+                </div>
+            </div>
+            
+            <!-- API Key Invoke Button -->
+            <div class="p-4 border-b border-gray-800">
+                <button id="open-api-tester" class="w-full gradient-btn text-white py-2 px-3 rounded-md flex items-center justify-center">
+                    <i class="fas fa-key mr-2"></i> Manage & Test API Keys
+                </button>
+            </div>
+            
+            <!-- Additional Options -->
+            <div class="p-4 border-b border-gray-800">
+                <h3 class="text-lg font-semibold mb-4 text-gray-300">Options</h3>
+                <div class="space-y-3">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" id="enable-summary" class="model-checkbox h-4 w-4 rounded bg-gray-800 border-gray-700">
+                        <span class="text-sm">Enable AI Response Summary</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" id="dark-mode" class="model-checkbox h-4 w-4 rounded bg-gray-800 border-gray-700" checked>
+                        <span class="text-sm">Dark Mode</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Query History -->
+            <div class="p-4">
+                <h3 class="text-lg font-semibold mb-2 text-gray-300">Query History</h3>
+                <div id="query-history" class="space-y-2">
+                    <!-- Will be populated dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div id="main-content" class="flex-1 flex flex-col overflow-hidden transition-all duration-300">
+            <!-- Header with burger menu -->
+            <header class="glass-effect p-3 border-b border-gray-800 flex items-center justify-between sticky top-0 z-10">
+                <button id="open-sidebar" class="text-gray-400 hover:text-white p-1 rounded">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="text-xl font-bold text-neon-accent">AI Spectrum <span class="text-xs opacity-75">v1.0</span></h1>
+                <div class="flex items-center">
+                    <div id="active-models-count" class="text-sm text-gray-400 mr-2">0 models active</div>
+                    <button id="toggle-layout" class="text-gray-400 hover:text-white p-1 rounded">
+                        <i class="fas fa-columns"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Main content area -->
+            <div class="flex-1 overflow-auto p-4">
+                <!-- Query Input -->
+                <div class="bg-terminal-lighter rounded-lg shadow-lg p-4 mb-6 border border-gray-800">
+                    <div class="mb-3">
+                        <textarea id="query-input" rows="3" class="terminal-font w-full px-3 py-2 bg-terminal-bg text-white border border-gray-800 rounded-md focus:ring-2 focus:ring-neon-secondary focus:border-transparent" 
+                            placeholder="Enter your query here..."></textarea>
+                    </div>
+                    <div class="flex justify-end">
+                        <button id="submit-btn" class="gradient-btn text-white font-medium py-2 px-6 rounded-md flex items-center">
+                            <i class="fas fa-paper-plane mr-2"></i> Send to All Models
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Loading Indicator -->
+                <div id="loading-indicator" class="hidden text-center my-6">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-neon-secondary"></div>
+                    <p class="mt-2 text-gray-400">Fetching responses from AI models...</p>
+                </div>
+
+                <!-- Summary Section (initially hidden) -->
+                <div id="summary-container" class="bg-terminal-lighter rounded-lg shadow-lg p-4 mb-6 border border-gray-800 hidden">
+                    <div class="flex items-center mb-3">
+                        <span class="summary-badge px-2 py-1 rounded-md text-xs mr-2">AI SUMMARY</span>
+                        <h3 class="text-lg font-medium text-neon-accent">Consensus & Key Insights</h3>
+                    </div>
+                    <div id="summary-content" class="markdown-content text-gray-300 terminal-font">
+                        <!-- Summary content will be inserted here -->
+                    </div>
+                </div>
+
+                <!-- Response Grid - This will be populated dynamically -->
+                <div id="responses-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8 hidden">
+                    <!-- Will be populated dynamically -->
+                </div>
+                
+                <!-- Follow-up Query Area -->
+                <div id="followup-container" class="bg-terminal-lighter rounded-lg shadow-lg p-4 mb-6 border border-gray-800 hidden">
+                    <h3 class="text-lg font-medium mb-3 text-gray-300">Follow-up Question</h3>
+                    <div class="mb-3">
+                        <textarea id="followup-input" rows="2" class="terminal-font w-full px-3 py-2 bg-terminal-bg text-white border border-gray-800 rounded-md focus:ring-2 focus:ring-neon-secondary focus:border-transparent" 
+                            placeholder="Ask a follow-up question..."></textarea>
+                    </div>
+                    <div class="flex justify-end">
+                        <button id="followup-btn" class="gradient-btn text-white font-medium py-2 px-6 rounded-md flex items-center">
+                            <i class="fas fa-reply mr-2"></i> Send Follow-up
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- API Key Tester Panel (Slides in from right) -->
+        <div id="api-tester-panel" class="api-tester-panel bg-terminal-lighter border-l border-gray-800 overflow-y-auto hidden-scrollbar">
+            <div class="p-4 border-b border-gray-800 flex justify-between items-center">
+                <h2 class="text-lg font-bold text-neon-primary">API Key Manager</h2>
+                <button id="close-api-tester" class="text-gray-400 hover:text-white p-1 rounded">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="p-4">
+                <div class="mb-6">
+                    <p class="text-sm mb-4 text-gray-400">Test and validate your API keys before using them. The system will verify if your key is working properly.</p>
+                
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-1">Provider</label>
+                            <select id="api-test-provider" class="w-full px-3 py-2 border rounded-md bg-terminal-bg text-white border-gray-800">
+                                <option value="">Select a provider</option>
+                                <option value="openai">OpenAI</option>
+                                <option value="anthropic">Anthropic</option>
+                                <option value="deepseek">DeepSeek</option>
+                                <option value="mistral">Mistral AI</option>
+                                <option value="gemini">Google Gemini</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-1">API Key</label>
+                            <input type="password" id="api-test-key" class="w-full px-3 py-2 border rounded-md bg-terminal-bg text-white border-gray-800">
+                        </div>
+                        
+                        <button id="test-api-btn" class="w-full gradient-btn text-white py-2 px-4 rounded-md flex items-center justify-center">
+                            <i class="fas fa-vial mr-2"></i> Test API Key
+                        </button>
+                        
+                        <div id="api-test-result" class="p-3 rounded-md border border-gray-800 bg-terminal-bg hidden">
+                            <!-- Test results will appear here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Saved API Keys -->
+                <div>
+                    <h3 class="text-md font-medium mb-3 text-gray-300 border-b border-gray-800 pb-2">Saved API Keys</h3>
+                    <div id="saved-keys-container" class="space-y-3">
+                        <!-- Will be populated dynamically -->
+                    </div>
+                </div>
+                
+                <div class="mt-8">
+                    <button id="save-all-keys" class="w-full gradient-btn text-white py-2 px-4 rounded-md flex items-center justify-center">
+                        <i class="fas fa-save mr-2"></i> Save All API Keys
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-4 right-4 glass-effect text-white px-4 py-2 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center border border-gray-800">
+        <i class="fas fa-check-circle text-neon-primary mr-2"></i>
+        <span id="toast-message">Operation successful</span>
+    </div>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>

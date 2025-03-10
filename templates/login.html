@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AI Spectrum</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        mono: ['JetBrains Mono', 'Fira Code', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+                        sans: ['Inter', 'Helvetica', 'Arial', 'sans-serif']
+                    },
+                    colors: {
+                        terminal: {
+                            bg: '#1E1E1E',
+                            text: '#F0F0F0',
+                            prompt: '#50FA7B',
+                            cursor: '#FFFFFF'
+                        },
+                        claude: {
+                            light: '#F4F4F6',
+                            dark: '#424246',
+                            accent: '#7E57C2'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: linear-gradient(to bottom, #2D2D30, #1E1E1E);
+            color: #F4F4F6;
+            min-height: 100vh;
+        }
+        .terminal-font {
+            font-family: 'JetBrains Mono', 'Fira Code', 'Menlo', monospace !important;
+        }
+    </style>
+</head>
+<body class="font-mono text-terminal-text">
+    <div class="flex items-center justify-center min-h-screen">
+        <div class="bg-gray-800 rounded-lg shadow-xl p-8 w-full max-w-md">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-claude-accent mb-2">AI Spectrum</h1>
+                <p class="text-gray-400">Sign in to compare AI models</p>
+            </div>
+            
+            <form id="login-form" class="space-y-6">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-300 mb-1">Email</label>
+                    <input type="email" id="email" name="email" class="w-full px-4 py-2 rounded-md bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-claude-accent focus:border-transparent" required>
+                </div>
+                
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-300 mb-1">Password</label>
+                    <input type="password" id="password" name="password" class="w-full px-4 py-2 rounded-md bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-claude-accent focus:border-transparent" required>
+                </div>
+                
+                <div>
+                    <button type="submit" class="w-full bg-claude-accent hover:bg-opacity-80 text-white font-medium py-2 px-4 rounded-md transition">
+                        Sign In
+                    </button>
+                </div>
+            </form>
+            
+            <div class="mt-6">
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-600"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-gray-800 text-gray-400">Or continue with</span>
+                    </div>
+                </div>
+                
+                <div class="mt-6 grid grid-cols-2 gap-3">
+                    <button id="google-login" class="w-full inline-flex justify-center py-2 px-4 border border-gray-600 rounded-md shadow-sm bg-gray-700 text-sm font-medium text-gray-300 hover:bg-gray-600">
+                        <i class="fab fa-google text-lg mr-2"></i>
+                        Google
+                    </button>
+                    <button id="github-login" class="w-full inline-flex justify-center py-2 px-4 border border-gray-600 rounded-md shadow-sm bg-gray-700 text-sm font-medium text-gray-300 hover:bg-gray-600">
+                        <i class="fab fa-github text-lg mr-2"></i>
+                        GitHub
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mt-8 text-center text-sm text-gray-400">
+                <p>Don't have an account? <a href="/register" class="text-claude-accent hover:text-purple-400">Sign up</a></p>
+                <p class="mt-1">Or <a href="/" class="text-claude-accent hover:text-purple-400">continue as guest</a></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center">
+        <i class="fas fa-check-circle text-green-400 mr-2"></i>
+        <span id="toast-message">Operation successful</span>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('login-form');
+            const googleLoginBtn = document.getElementById('google-login');
+            const githubLoginBtn = document.getElementById('github-login');
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                try {
+                    const response = await fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email, password }),
+                        credentials: 'include'
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        showToast('Login successful! Redirecting...', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/';
+                        }, 1000);
+                    } else {
+                        showToast('Login failed: ' + data.error, 'error');
+                    }
+                } catch (error) {
+                    showToast('Error: ' + error.message, 'error');
+                }
+            });
+            
+            googleLoginBtn.addEventListener('click', async () => {
+                // This is a mock Google login
+                // In a real app, this would redirect to Google OAuth
+                try {
+                    const response = await fetch('/api/auth/google', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ token: 'mock-google-token' }),
+                        credentials: 'include'
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        showToast('Google login successful! Redirecting...', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/';
+                        }, 1000);
+                    } else {
+                        showToast('Google login failed', 'error');
+                    }
+                } catch (error) {
+                    showToast('Error: ' + error.message, 'error');
+                }
+            });
+            
+            function showToast(message, type = 'success') {
+                // Set message
+                toastMessage.textContent = message;
+                
+                // Set icon based on type
+                const iconElement = toast.querySelector('i');
+                iconElement.className = type === 'success' 
+                    ? 'fas fa-check-circle text-green-400 mr-2' 
+                    : type === 'error' 
+                        ? 'fas fa-exclamation-circle text-red-400 mr-2'
+                        : 'fas fa-info-circle text-blue-400 mr-2';
+                
+                // Show toast
+                toast.classList.remove('translate-y-20', 'opacity-0');
+                toast.classList.add('translate-y-0', 'opacity-100');
+                
+                // Hide toast after 3 seconds
+                setTimeout(() => {
+                    toast.classList.remove('translate-y-0', 'opacity-100');
+                    toast.classList.add('translate-y-20', 'opacity-0');
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>
