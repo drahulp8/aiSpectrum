@@ -9,28 +9,49 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Poppins:wght@300;500;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
-                        mono: ['JetBrains Mono', 'Fira Code', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
-                        sans: ['Inter', 'Helvetica', 'Arial', 'sans-serif']
+                        mono: ['Space Mono', 'JetBrains Mono', 'monospace'],
+                        sans: ['Poppins', 'Helvetica', 'Arial', 'sans-serif'],
+                        serif: ['DM Serif Display', 'Georgia', 'serif']
                     },
                     colors: {
-                        terminal: {
-                            bg: '#0F0F11',
-                            lighter: '#1A1A1D',
-                            text: '#F0F0F0',
-                            prompt: '#50FA7B',
-                            cursor: '#FFFFFF'
+                        slate: {
+                            darkest: '#121826',
+                            dark: '#1F2937',
+                            medium: '#374151',
+                            light: '#4B5563',
+                            lightest: '#6B7280'
                         },
-                        neon: {
-                            primary: '#00FFBB',
-                            secondary: '#9181F7',
-                            accent: '#00D1FF'
+                        frost: {
+                            dark: '#94A3B8',
+                            medium: '#CBD5E1',
+                            light: '#F1F5F9'
+                        },
+                        accent: {
+                            primary: '#5E60CE',
+                            secondary: '#64DFDF',
+                            tertiary: '#6930C3'
+                        }
+                    },
+                    animation: {
+                        'gradient-shift': 'gradient-shift 8s ease infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                    },
+                    keyframes: {
+                        'gradient-shift': {
+                            '0%, 100%': { backgroundPosition: '0% 50%' },
+                            '50%': { backgroundPosition: '100% 50%' }
+                        },
+                        'float': {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' }
                         }
                     }
                 }
@@ -39,21 +60,114 @@
     </script>
     <style>
         body {
-            background-color: #0F0F11;
-            color: #F4F4F6;
+            background-color: #121826;
+            color: #F1F5F9;
             min-height: 100vh;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: 'Poppins', sans-serif;
         }
+        
+        /* Modern Gradient Backgrounds */
+        .primary-gradient {
+            background: linear-gradient(135deg, #1F2937, #374151, #4B5563);
+            background-size: 200% 200%;
+            animation: gradient-shift 10s ease infinite;
+        }
+        
+        .cool-gradient {
+            background: linear-gradient(135deg, #5E60CE, #48BFE3, #64DFDF);
+            background-size: 200% 200%;
+            animation: gradient-shift 8s ease infinite;
+        }
+        
+        .accent-gradient {
+            background: linear-gradient(135deg, #6930C3, #5E60CE, #7400B8);
+            background-size: 200% 200%;
+            animation: gradient-shift 12s ease infinite;
+        }
+        
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        /* Card styling */
+        .retro-card {
+            background-color: #1F2937;
+            border: 1px solid rgba(94, 96, 206, 0.3);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(8px);
+        }
+        .retro-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            border-color: rgba(94, 96, 206, 0.5);
+        }
+        
+        /* Button styling */
+        .retro-btn {
+            background: linear-gradient(135deg, #5E60CE, #6930C3);
+            color: #F1F5F9;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(105, 48, 195, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .retro-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(105, 48, 195, 0.4);
+            background: linear-gradient(135deg, #6930C3, #5E60CE);
+        }
+        .retro-btn:active {
+            transform: translateY(1px);
+        }
+        .retro-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s ease;
+            opacity: 0;
+        }
+        .retro-btn:hover::after {
+            opacity: 1;
+            transform: rotate(45deg) translateX(100%);
+        }
+        
+        /* Input styling */
+        .retro-input {
+            background-color: #121826;
+            border: 1px solid #374151;
+            color: #F1F5F9;
+            border-radius: 8px;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        .retro-input:focus {
+            border-color: #5E60CE;
+            box-shadow: 0 0 0 2px rgba(94, 96, 206, 0.25);
+            outline: none;
+        }
+        
+        /* Markdown content styling */
         .markdown-content pre {
-            background-color: #1A1A1D;
+            background-color: #121826;
             padding: 1rem;
             border-radius: 0.5rem;
             overflow-x: auto;
-            border: 1px solid #2D2D30;
+            border: 1px solid #374151;
         }
         .markdown-content code {
-            font-family: 'JetBrains Mono', 'Fira Code', 'Menlo', monospace;
-            color: #E4E4E4;
+            font-family: 'Space Mono', monospace;
+            color: #CBD5E1;
         }
         .markdown-content p {
             margin-bottom: 1rem;
@@ -64,7 +178,8 @@
             margin-top: 1.5rem;
             margin-bottom: 1rem;
             font-weight: bold;
-            color: #E4E4E4;
+            font-family: 'DM Serif Display', serif;
+            color: #5E60CE;
         }
         .markdown-content h1 { font-size: 1.8rem; }
         .markdown-content h2 { font-size: 1.6rem; }
@@ -77,26 +192,70 @@
             margin-bottom: 0.5rem;
         }
         .markdown-content blockquote {
-            border-left: 4px solid #9181F7;
+            border-left: 4px solid #64DFDF;
             padding-left: 1rem;
             margin-bottom: 1rem;
-            background-color: #1A1A1D;
+            background-color: rgba(31, 41, 55, 0.7);
             padding: 0.5rem 0.5rem 0.5rem 1rem;
             border-radius: 0.25rem;
         }
+        
+        /* Layout transitions */
         .sidebar {
             transform: translateX(-100%);
-            transition: transform 0.3s ease-in-out;
+            transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(94, 96, 206, 0.2);
+            background-color: rgba(31, 41, 55, 0.8);
         }
         .sidebar.open {
             transform: translateX(0);
         }
         .content-shifted {
             margin-left: 18rem;
-            transition: margin-left 0.3s ease-in-out;
+            transition: margin-left 0.4s cubic-bezier(0.19, 1, 0.22, 1);
         }
+        
+        /* Glass effect */
+        .glass-panel {
+            background: rgba(31, 41, 55, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(94, 96, 206, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Animation classes */
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .animate-pulse-slow {
+            animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
         .terminal-font {
-            font-family: 'JetBrains Mono', 'Fira Code', 'Menlo', monospace !important;
+            font-family: 'Space Mono', monospace !important;
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #121826;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #5E60CE;
         }
         .model-container {
             transition: all 0.3s ease;
@@ -174,59 +333,61 @@
 <body>
     <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
-        <div id="sidebar" class="sidebar fixed left-0 top-0 h-full w-72 bg-terminal-lighter border-r border-gray-800 z-50 shadow-xl overflow-y-auto hidden-scrollbar">
-            <div class="p-4 border-b border-gray-800">
+        <div id="sidebar" class="sidebar fixed left-0 top-0 h-full w-72 z-50 overflow-y-auto hidden-scrollbar">
+            <div class="p-4 border-b border-slate-light border-opacity-20">
                 <div class="flex justify-between items-center">
-                    <h2 class="text-xl font-bold text-neon-secondary neon-text">AI Spectrum</h2>
-                    <button id="close-sidebar" class="text-gray-400 hover:text-white p-1 rounded">
+                    <h2 class="text-xl font-serif font-bold text-accent-primary animate-pulse-slow">AI Spectrum</h2>
+                    <button id="close-sidebar" class="text-frost-dark hover:text-accent-secondary p-1 rounded transition-colors duration-300">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
             </div>
             
             <!-- User Profile Section -->
-            <div id="user-profile" class="p-4 border-b border-gray-800">
+            <div id="user-profile" class="p-4 border-b border-slate-light border-opacity-20">
                 <!-- Will be populated dynamically -->
-                <a href="/login" class="flex items-center space-x-2 text-neon-secondary hover:text-neon-primary">
+                <a href="/login" class="flex items-center space-x-2 text-accent-secondary hover:text-accent-primary transition-colors duration-300">
                     <i class="fas fa-sign-in-alt"></i>
                     <span>Sign In</span>
                 </a>
             </div>
             
             <!-- Model Selectors -->
-            <div class="p-4 border-b border-gray-800">
-                <h3 class="text-lg font-semibold mb-4 text-gray-300">Available Models</h3>
-                <div id="model-selectors" class="space-y-2">
+            <div class="p-4 border-b border-slate-light border-opacity-20">
+                <h3 class="text-lg font-serif font-semibold mb-4 text-accent-primary">Available Models</h3>
+                <div id="model-selectors" class="space-y-3">
                     <!-- Will be populated dynamically -->
                 </div>
             </div>
             
             <!-- API Key Invoke Button -->
-            <div class="p-4 border-b border-gray-800">
-                <button id="open-api-tester" class="w-full gradient-btn text-white py-2 px-3 rounded-md flex items-center justify-center">
+            <div class="p-4 border-b border-slate-light border-opacity-20">
+                <button id="open-api-tester" class="w-full retro-btn py-2 px-3 rounded-md flex items-center justify-center">
                     <i class="fas fa-key mr-2"></i> Manage & Test API Keys
                 </button>
             </div>
             
             <!-- Additional Options -->
-            <div class="p-4 border-b border-gray-800">
-                <h3 class="text-lg font-semibold mb-4 text-gray-300">Options</h3>
+            <div class="p-4 border-b border-slate-light border-opacity-20">
+                <h3 class="text-lg font-serif font-semibold mb-4 text-accent-primary">Options</h3>
                 <div class="space-y-3">
-                    <label class="flex items-center space-x-2 cursor-pointer">
-                        <input type="checkbox" id="enable-summary" class="model-checkbox h-4 w-4 rounded bg-gray-800 border-gray-700">
-                        <span class="text-sm">Enable AI Response Summary</span>
+                    <label class="flex items-center space-x-2 cursor-pointer group transition-all duration-300">
+                        <input type="checkbox" id="enable-summary" class="h-4 w-4 rounded bg-slate-darkest border-slate-light 
+                            focus:ring-accent-primary focus:ring-2 text-accent-secondary">
+                        <span class="text-sm group-hover:text-accent-secondary transition-colors duration-300">Enable AI Response Summary</span>
                     </label>
-                    <label class="flex items-center space-x-2 cursor-pointer">
-                        <input type="checkbox" id="dark-mode" class="model-checkbox h-4 w-4 rounded bg-gray-800 border-gray-700" checked>
-                        <span class="text-sm">Dark Mode</span>
+                    <label class="flex items-center space-x-2 cursor-pointer group transition-all duration-300">
+                        <input type="checkbox" id="dark-mode" class="h-4 w-4 rounded bg-slate-darkest border-slate-light 
+                            focus:ring-accent-primary focus:ring-2 text-accent-secondary" checked>
+                        <span class="text-sm group-hover:text-accent-secondary transition-colors duration-300">Dark Mode</span>
                     </label>
                 </div>
             </div>
             
             <!-- Query History -->
             <div class="p-4">
-                <h3 class="text-lg font-semibold mb-2 text-gray-300">Query History</h3>
-                <div id="query-history" class="space-y-2">
+                <h3 class="text-lg font-serif font-semibold mb-4 text-accent-primary">Query History</h3>
+                <div id="query-history" class="space-y-3">
                     <!-- Will be populated dynamically -->
                 </div>
             </div>
@@ -235,14 +396,16 @@
         <!-- Main Content -->
         <div id="main-content" class="flex-1 flex flex-col overflow-hidden transition-all duration-300">
             <!-- Header with burger menu -->
-            <header class="glass-effect p-3 border-b border-gray-800 flex items-center justify-between sticky top-0 z-10">
-                <button id="open-sidebar" class="text-gray-400 hover:text-white p-1 rounded">
+            <header class="glass-panel p-3 border-b border-opacity-20 flex items-center justify-between sticky top-0 z-10">
+                <button id="open-sidebar" class="text-frost-dark hover:text-accent-secondary p-1 rounded transition-colors duration-300">
                     <i class="fas fa-bars"></i>
                 </button>
-                <h1 class="text-xl font-bold text-neon-accent">AI Spectrum <span class="text-xs opacity-75">v1.0</span></h1>
+                <h1 class="text-xl font-serif font-bold text-accent-primary animate-pulse-slow">
+                    AI Spectrum <span class="text-xs opacity-75">v1.0</span>
+                </h1>
                 <div class="flex items-center">
-                    <div id="active-models-count" class="text-sm text-gray-400 mr-2">0 models active</div>
-                    <button id="toggle-layout" class="text-gray-400 hover:text-white p-1 rounded">
+                    <div id="active-models-count" class="text-sm text-frost-dark mr-3 font-mono">0 models active</div>
+                    <button id="toggle-layout" class="text-frost-dark hover:text-accent-secondary p-1 rounded transition-colors duration-300">
                         <i class="fas fa-columns"></i>
                     </button>
                 </div>
@@ -251,31 +414,31 @@
             <!-- Main content area -->
             <div class="flex-1 overflow-auto p-4">
                 <!-- Query Input -->
-                <div class="bg-terminal-lighter rounded-lg shadow-lg p-4 mb-6 border border-gray-800">
+                <div class="retro-card rounded-lg p-5 mb-6 cool-gradient">
                     <div class="mb-3">
-                        <textarea id="query-input" rows="3" class="terminal-font w-full px-3 py-2 bg-terminal-bg text-white border border-gray-800 rounded-md focus:ring-2 focus:ring-neon-secondary focus:border-transparent" 
+                        <textarea id="query-input" rows="3" class="terminal-font w-full px-3 py-3 retro-input focus:ring-2 focus:ring-accent-primary focus:border-transparent" 
                             placeholder="Enter your query here..."></textarea>
                     </div>
                     <div class="flex justify-end">
-                        <button id="submit-btn" class="gradient-btn text-white font-medium py-2 px-6 rounded-md flex items-center">
-                            <i class="fas fa-paper-plane mr-2"></i> Send to All Models
+                        <button id="submit-btn" class="retro-btn text-frost-light font-medium py-2 px-6 rounded-md flex items-center shadow-lg">
+                            <i class="fas fa-paper-plane mr-2 animate-float"></i> Send to All Models
                         </button>
                     </div>
                 </div>
 
                 <!-- Loading Indicator -->
-                <div id="loading-indicator" class="hidden text-center my-6">
-                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-neon-secondary"></div>
-                    <p class="mt-2 text-gray-400">Fetching responses from AI models...</p>
+                <div id="loading-indicator" class="hidden text-center my-8">
+                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-3 border-b-3 border-accent-primary"></div>
+                    <p class="mt-3 text-frost-dark font-mono">Gathering insights from AI models...</p>
                 </div>
 
                 <!-- Summary Section (initially hidden) -->
-                <div id="summary-container" class="bg-terminal-lighter rounded-lg shadow-lg p-4 mb-6 border border-gray-800 hidden">
-                    <div class="flex items-center mb-3">
-                        <span class="summary-badge px-2 py-1 rounded-md text-xs mr-2">AI SUMMARY</span>
-                        <h3 class="text-lg font-medium text-neon-accent">Consensus & Key Insights</h3>
+                <div id="summary-container" class="retro-card accent-gradient rounded-lg p-5 mb-6 hidden">
+                    <div class="flex items-center mb-4">
+                        <span class="bg-accent-secondary text-slate-darkest px-3 py-1 rounded-md text-xs mr-3 font-mono font-bold">AI INSIGHTS</span>
+                        <h3 class="text-lg font-serif font-medium text-frost-light">Consensus & Key Insights</h3>
                     </div>
-                    <div id="summary-content" class="markdown-content text-gray-300 terminal-font">
+                    <div id="summary-content" class="markdown-content text-frost-light terminal-font p-3 bg-slate-dark bg-opacity-50 rounded-lg">
                         <!-- Summary content will be inserted here -->
                     </div>
                 </div>
@@ -286,15 +449,15 @@
                 </div>
                 
                 <!-- Follow-up Query Area -->
-                <div id="followup-container" class="bg-terminal-lighter rounded-lg shadow-lg p-4 mb-6 border border-gray-800 hidden">
-                    <h3 class="text-lg font-medium mb-3 text-gray-300">Follow-up Question</h3>
-                    <div class="mb-3">
-                        <textarea id="followup-input" rows="2" class="terminal-font w-full px-3 py-2 bg-terminal-bg text-white border border-gray-800 rounded-md focus:ring-2 focus:ring-neon-secondary focus:border-transparent" 
+                <div id="followup-container" class="retro-card primary-gradient rounded-lg p-5 mb-6 hidden">
+                    <h3 class="text-lg font-serif font-medium mb-3 text-accent-secondary">Follow-up Question</h3>
+                    <div class="mb-4">
+                        <textarea id="followup-input" rows="2" class="terminal-font w-full px-3 py-3 retro-input focus:ring-2 focus:ring-accent-primary focus:border-transparent" 
                             placeholder="Ask a follow-up question..."></textarea>
                     </div>
                     <div class="flex justify-end">
-                        <button id="followup-btn" class="gradient-btn text-white font-medium py-2 px-6 rounded-md flex items-center">
-                            <i class="fas fa-reply mr-2"></i> Send Follow-up
+                        <button id="followup-btn" class="retro-btn text-frost-light font-medium py-2 px-6 rounded-md flex items-center shadow-lg">
+                            <i class="fas fa-reply mr-2 animate-float"></i> Send Follow-up
                         </button>
                     </div>
                 </div>
@@ -302,22 +465,22 @@
         </div>
         
         <!-- API Key Tester Panel (Slides in from right) -->
-        <div id="api-tester-panel" class="api-tester-panel bg-terminal-lighter border-l border-gray-800 overflow-y-auto hidden-scrollbar">
-            <div class="p-4 border-b border-gray-800 flex justify-between items-center">
-                <h2 class="text-lg font-bold text-neon-primary">API Key Manager</h2>
-                <button id="close-api-tester" class="text-gray-400 hover:text-white p-1 rounded">
+        <div id="api-tester-panel" class="api-tester-panel glass-panel border-l border-slate-light border-opacity-20 overflow-y-auto hidden-scrollbar">
+            <div class="p-4 border-b border-slate-light border-opacity-20 flex justify-between items-center">
+                <h2 class="text-lg font-serif font-bold text-accent-primary">API Key Manager</h2>
+                <button id="close-api-tester" class="text-frost-dark hover:text-accent-secondary p-1 rounded transition-colors duration-300">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             
             <div class="p-4">
                 <div class="mb-6">
-                    <p class="text-sm mb-4 text-gray-400">Test and validate your API keys before using them. The system will verify if your key is working properly.</p>
+                    <p class="text-sm mb-4 text-frost-medium">Test and validate your API keys before using them. The system will verify if your key is working properly.</p>
                 
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-1">Provider</label>
-                            <select id="api-test-provider" class="w-full px-3 py-2 border rounded-md bg-terminal-bg text-white border-gray-800">
+                            <label class="block text-sm font-medium text-frost-light mb-1">Provider</label>
+                            <select id="api-test-provider" class="w-full px-3 py-2 retro-input rounded-md focus:ring-2 focus:ring-accent-primary focus:border-transparent">
                                 <option value="">Select a provider</option>
                                 <option value="openai">OpenAI</option>
                                 <option value="anthropic">Anthropic</option>
@@ -328,15 +491,15 @@
                         </div>
                         
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-1">API Key</label>
-                            <input type="password" id="api-test-key" class="w-full px-3 py-2 border rounded-md bg-terminal-bg text-white border-gray-800">
+                            <label class="block text-sm font-medium text-frost-light mb-1">API Key</label>
+                            <input type="password" id="api-test-key" class="w-full px-3 py-2 retro-input rounded-md focus:ring-2 focus:ring-accent-primary focus:border-transparent">
                         </div>
                         
-                        <button id="test-api-btn" class="w-full gradient-btn text-white py-2 px-4 rounded-md flex items-center justify-center">
-                            <i class="fas fa-vial mr-2"></i> Test API Key
+                        <button id="test-api-btn" class="w-full retro-btn text-frost-light py-2 px-4 rounded-md flex items-center justify-center">
+                            <i class="fas fa-vial mr-2 animate-float"></i> Test API Key
                         </button>
                         
-                        <div id="api-test-result" class="p-3 rounded-md border border-gray-800 bg-terminal-bg hidden">
+                        <div id="api-test-result" class="p-4 rounded-md border border-slate-light border-opacity-20 bg-slate-darkest hidden">
                             <!-- Test results will appear here -->
                         </div>
                     </div>
@@ -344,15 +507,15 @@
                 
                 <!-- Saved API Keys -->
                 <div>
-                    <h3 class="text-md font-medium mb-3 text-gray-300 border-b border-gray-800 pb-2">Saved API Keys</h3>
+                    <h3 class="text-md font-serif font-medium mb-3 text-accent-primary border-b border-slate-light border-opacity-20 pb-2">Saved API Keys</h3>
                     <div id="saved-keys-container" class="space-y-3">
                         <!-- Will be populated dynamically -->
                     </div>
                 </div>
                 
                 <div class="mt-8">
-                    <button id="save-all-keys" class="w-full gradient-btn text-white py-2 px-4 rounded-md flex items-center justify-center">
-                        <i class="fas fa-save mr-2"></i> Save All API Keys
+                    <button id="save-all-keys" class="w-full retro-btn text-frost-light py-2 px-4 rounded-md flex items-center justify-center">
+                        <i class="fas fa-save mr-2 animate-float"></i> Save All API Keys
                     </button>
                 </div>
             </div>
@@ -360,9 +523,9 @@
     </div>
 
     <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-4 right-4 glass-effect text-white px-4 py-2 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center border border-gray-800">
-        <i class="fas fa-check-circle text-neon-primary mr-2"></i>
-        <span id="toast-message">Operation successful</span>
+    <div id="toast" class="fixed bottom-4 right-4 glass-panel text-frost-light px-5 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center border border-accent-primary">
+        <i class="fas fa-check-circle text-accent-secondary mr-3 animate-pulse-slow"></i>
+        <span id="toast-message" class="font-mono">Operation successful</span>
     </div>
 
     <script src="/static/js/main.js"></script>

@@ -188,12 +188,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const hasAPIKey = localStorage.getItem(`${modelId}-key`);
             
             const modelSelector = document.createElement('div');
-            modelSelector.className = 'flex items-center p-2 hover:bg-terminal-bg rounded-md transition';
+            modelSelector.className = 'flex items-center p-3 hover:bg-mocha-medium rounded-lg transition-all duration-300 retro-card';
             
             modelSelector.innerHTML = `
-                <input type="checkbox" id="model-${modelId}" class="model-checkbox h-4 w-4 rounded bg-terminal-bg border-gray-700 focus:ring-neon-secondary focus:ring-offset-gray-800" 
-                       data-model-id="${modelId}" ${isActive ? 'checked' : ''} ${!hasAPIKey ? 'disabled' : ''}>
-                <label for="model-${modelId}" class="ml-3 text-sm font-medium ${hasAPIKey ? 'text-gray-300' : 'text-gray-500'} flex-grow cursor-pointer">${model.name}</label>
+                <input type="checkbox" id="model-${modelId}" class="h-4 w-4 rounded bg-mocha-darkest border-mocha-light 
+                    focus:ring-accent-gold focus:ring-2 text-accent-gold" 
+                    data-model-id="${modelId}" ${isActive ? 'checked' : ''} ${!hasAPIKey ? 'disabled' : ''}>
+                <label for="model-${modelId}" class="ml-3 text-sm font-medium ${hasAPIKey ? 'text-cream-light' : 'text-cream-dark'} flex-grow cursor-pointer">${model.name}</label>
                 <span class="text-xs px-2 py-1 rounded-full ${getModelBadgeColor(model.color)}">${model.models.length}</span>
             `;
             
@@ -221,18 +222,18 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function getModelBadgeColor(color) {
         const colorMap = {
-            'green': 'bg-green-900 text-green-300',
-            'purple': 'bg-purple-900 text-purple-300',
-            'blue': 'bg-blue-900 text-blue-300',
-            'yellow': 'bg-yellow-900 text-yellow-300',
-            'teal': 'bg-teal-900 text-teal-300',
-            'pink': 'bg-pink-900 text-pink-300',
-            'lime': 'bg-lime-900 text-lime-300',
-            'indigo': 'bg-indigo-900 text-indigo-300',
-            'gray': 'bg-gray-700 text-gray-300'
+            'green': 'bg-mocha-dark border border-accent-teal text-accent-teal',
+            'purple': 'bg-mocha-dark border border-accent-coral text-accent-coral',
+            'blue': 'bg-mocha-dark border border-accent-teal text-accent-teal',
+            'yellow': 'bg-mocha-dark border border-accent-gold text-accent-gold',
+            'teal': 'bg-mocha-dark border border-accent-teal text-accent-teal',
+            'pink': 'bg-mocha-dark border border-accent-coral text-accent-coral',
+            'lime': 'bg-mocha-dark border border-accent-gold text-accent-gold',
+            'indigo': 'bg-mocha-dark border border-accent-teal text-accent-teal',
+            'gray': 'bg-mocha-dark border border-cream-dark text-cream-dark'
         };
         
-        return colorMap[color] || 'bg-gray-700 text-gray-300';
+        return colorMap[color] || 'bg-mocha-dark border border-cream-dark text-cream-dark';
     }
     
     function toggleModelActive(modelId, isActive) {
@@ -320,16 +321,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // Create response container
         const responseContainer = document.createElement('div');
         responseContainer.id = `${modelId}-container`;
-        responseContainer.className = 'model-container bg-terminal-lighter rounded-lg shadow-lg overflow-hidden';
+        responseContainer.className = 'retro-card rounded-lg shadow-lg overflow-hidden transition-all duration-300';
         
         responseContainer.innerHTML = `
-            <div class="bg-terminal-bg p-3 model-header flex justify-between items-center" style="border-bottom: 2px solid ${modelColor}">
-                <h3 class="font-medium" style="color: ${modelColor}">${model.name} <span id="${modelId}-model-display" class="text-sm opacity-75"></span></h3>
-                <button class="copy-btn text-gray-400 hover:text-white p-1" data-model="${modelId}">
+            <div class="mocha-gradient p-4 model-header flex justify-between items-center border-b border-mocha-light">
+                <h3 class="font-serif font-medium" style="color: ${modelColor}">${model.name} <span id="${modelId}-model-display" class="text-sm font-mono opacity-80"></span></h3>
+                <button class="copy-btn text-cream-dark hover:text-accent-coral p-1 transition-colors duration-300" data-model="${modelId}">
                     <i class="fas fa-copy"></i>
                 </button>
             </div>
-            <div id="${modelId}-response" class="p-4 markdown-content overflow-auto h-96 terminal-font text-gray-300 hidden-scrollbar"></div>
+            <div id="${modelId}-response" class="p-5 markdown-content overflow-auto h-96 terminal-font text-cream-light"></div>
         `;
         
         responsesContainer.appendChild(responseContainer);
@@ -345,17 +346,18 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function getModelColor(color) {
         const colorMap = {
-            'green': '#10B981',    // Tailwind emerald-500
-            'purple': '#8B5CF6',   // Tailwind violet-500
-            'blue': '#3B82F6',     // Tailwind blue-500
-            'yellow': '#F59E0B',   // Tailwind amber-500
-            'teal': '#14B8A6',     // Tailwind teal-500
-            'pink': '#EC4899',     // Tailwind pink-500
-            'lime': '#84CC16',     // Tailwind lime-500
-            'indigo': '#6366F1'    // Tailwind indigo-500
+            'green': '#68BFB7',    // accent-teal
+            'purple': '#D4AF37',   // accent-gold
+            'blue': '#68BFB7',     // accent-teal
+            'yellow': '#D4AF37',   // accent-gold
+            'teal': '#68BFB7',     // accent-teal
+            'pink': '#FF8E72',     // accent-coral
+            'lime': '#D4AF37',     // accent-gold
+            'indigo': '#68BFB7',   // accent-teal
+            'gray': '#D4C6B6'      // cream-dark
         };
         
-        return colorMap[color] || '#9CA3AF'; // Default to gray-400
+        return colorMap[color] || '#D4C6B6'; // Default to cream-dark
     }
     
     function removeResponseContainer(modelId) {
