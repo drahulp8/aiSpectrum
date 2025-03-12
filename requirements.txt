@@ -5,3 +5,7 @@ anthropic==0.8.1
 openai>=1.6.1
 flask-cors==4.0.0
 pyJWT==2.8.0
+pytest==7.4.0
+logging-formatter-anticrlf==1.2.1
+rich==13.5.2
+pandas<2.1.0

@@ -4,6 +4,12 @@ import openai
 import requests
 import json
 import os
+import time
+import uuid
+import logging
+
+# Set up logging
+logger = logging.getLogger('aiSpectrum')
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
 
@@ -142,32 +148,39 @@ def get_models():
     """Return list of available AI models"""
     return jsonify(AVAILABLE_MODELS)
 
-from .summarizer import summarize_responses
+from .summarizer import summarize_responses, ResponseSummarizer
+
+from .error_handler import handle_api_error, api_error_handler
 
 @api_bp.route('/query', methods=['POST'])
+@api_error_handler
 def query_models():
-    print("\n===== API QUERY REQUEST =====")
+    logger.info("\n===== API QUERY REQUEST =====")
     data = request.json
     query = data.get('query')
     api_keys = data.get('api_keys', {})
     summarize = data.get('summarize', False)
     
-    print(f"Query: {query}")
-    print(f"API Keys provided for models: {list(api_keys.keys())}")
-    print(f"Summarize enabled: {summarize}")
+    logger.info(f"Query: {query}")
+    logger.info(f"API Keys provided for models: {list(api_keys.keys())}")
+    logger.info(f"Summarize enabled: {summarize}")
     
     results = {}
     
     # OpenAI
     if api_keys.get('openai'):
-        print("Attempting OpenAI API call...")
+        logger.info("Attempting OpenAI API call...")
         try:
+            # Input validation
+            if not query:
+                raise ValueError("Query parameter is required")
+                
             # Don't pass proxies parameter
             openai_client = openai.OpenAI(api_key=api_keys['openai']['key'])
             openai_model = api_keys['openai'].get('model', 'gpt-4o')
-            print(f"Using OpenAI model: {openai_model}")
+            logger.info(f"Using OpenAI model: {openai_model}")
             
-            print("Sending request to OpenAI API...")
+            logger.info("Sending request to OpenAI API...")
             openai_response = openai_client.chat.completions.create(
                 model=openai_model,
                 messages=[
@@ -175,29 +188,30 @@ def query_models():
                     {"role": "user", "content": query}
                 ]
             )
-            print("OpenAI API call successful!")
+            logger.info("OpenAI API call successful!")
             
             results['openai'] = {
                 'content': openai_response.choices[0].message.content,
                 'model': openai_model,
                 'status': 'success'
             }
-            print(f"OpenAI response length: {len(openai_response.choices[0].message.content)} chars")
+            logger.info(f"OpenAI response length: {len(openai_response.choices[0].message.content)} chars")
         except Exception as e:
-            print(f"OpenAI API call failed with error: {str(e)}")
-            results['openai'] = {
-                'content': f"Error: {str(e)}",
-                'status': 'error'
-            }
+            logger.error(f"OpenAI API call failed with error: {str(e)}")
+            results['openai'] = handle_api_error(e, 'openai', 'OpenAI')
     
     # Anthropic
     if api_keys.get('anthropic'):
-        print("Attempting Anthropic API call...")
+        logger.info("Attempting Anthropic API call...")
         try:
+            # Input validation
+            if not query:
+                raise ValueError("Query parameter is required")
+                
             # Direct API call for Anthropic instead of client
             api_key = api_keys['anthropic']['key']
             anthropic_model = api_keys['anthropic'].get('model', 'claude-3-opus-20240229')
-            print(f"Using Anthropic model: {anthropic_model}")
+            logger.info(f"Using Anthropic model: {anthropic_model}")
             
             url = "https://api.anthropic.com/v1/messages"
             headers = {
@@ -214,28 +228,30 @@ def query_models():
                 ]
             }
             
-            print("Sending request to Anthropic API...")
+            logger.info("Sending request to Anthropic API...")
             response = requests.post(url, headers=headers, json=payload)
             response.raise_for_status()
             response_data = response.json()
-            print("Anthropic API call successful!")
+            logger.info("Anthropic API call successful!")
             
             results['anthropic'] = {
                 'content': response_data['content'][0]['text'],
                 'model': anthropic_model,
                 'status': 'success'
             }
-            print(f"Anthropic response length: {len(response_data['content'][0]['text'])} chars")
+            logger.info(f"Anthropic response length: {len(response_data['content'][0]['text'])} chars")
         except Exception as e:
-            print(f"Anthropic API call failed with error: {str(e)}")
-            results['anthropic'] = {
-                'content': f"Error: {str(e)}",
-                'status': 'error'
-            }
+            logger.error(f"Anthropic API call failed with error: {str(e)}")
+            results['anthropic'] = handle_api_error(e, 'anthropic', 'Anthropic')
             
     # DeepSeek - using requests directly
     if api_keys.get('deepseek'):
+        logger.info("Attempting DeepSeek API call...")
         try:
+            # Input validation
+            if not query:
+                raise ValueError("Query parameter is required")
+                
             api_key = api_keys['deepseek']['key']
             deepseek_model = api_keys['deepseek'].get('model', 'deepseek-llm-67b-chat')
             
@@ -257,6 +273,7 @@ def query_models():
             }
             
             # Make the API request
+            logger.info(f"Sending request to DeepSeek API with model {deepseek_model}")
             response = requests.post(url, headers=headers, json=payload)
             response.raise_for_status()  # Raise an exception for HTTP errors
             
@@ -267,15 +284,19 @@ def query_models():
                 'model': deepseek_model,
                 'status': 'success'
             }
+            logger.info(f"DeepSeek response length: {len(response_data['choices'][0]['message']['content'])} chars")
         except Exception as e:
-            results['deepseek'] = {
-                'content': f"Error: {str(e)}",
-                'status': 'error'
-            }
+            logger.error(f"DeepSeek API call failed with error: {str(e)}")
+            results['deepseek'] = handle_api_error(e, 'deepseek', 'DeepSeek')
             
     # Mistral (if present)
     if api_keys.get('mistral'):
+        logger.info("Attempting Mistral API call...")
         try:
+            # Input validation
+            if not query:
+                raise ValueError("Query parameter is required")
+                
             api_key = api_keys['mistral']['key']
             mistral_model = api_keys['mistral'].get('model', 'mistral-large-latest')
             
@@ -292,6 +313,7 @@ def query_models():
                 ]
             }
             
+            logger.info(f"Sending request to Mistral API with model {mistral_model}")
             response = requests.post(url, headers=headers, json=payload)
             response.raise_for_status()
             response_data = response.json()
@@ -301,16 +323,19 @@ def query_models():
                 'model': mistral_model,
                 'status': 'success'
             }
+            logger.info(f"Mistral response length: {len(response_data['choices'][0]['message']['content'])} chars")
         except Exception as e:
-            results['mistral'] = {
-                'content': f"Error: {str(e)}",
-                'status': 'error'
-            }
+            logger.error(f"Mistral API call failed with error: {str(e)}")
+            results['mistral'] = handle_api_error(e, 'mistral', 'Mistral AI')
 
     # Google Gemini (if present)
     if api_keys.get('gemini'):
-        print("Attempting Google Gemini API call...")
+        logger.info("Attempting Google Gemini API call...")
         try:
+            # Input validation
+            if not query:
+                raise ValueError("Query parameter is required")
+                
             api_key = api_keys['gemini']['key']
             
             # Try multiple models in case the selected one doesn't work
@@ -325,10 +350,11 @@ def query_models():
             gemini_models = list(dict.fromkeys(gemini_models))
             
             success = False
+            model_errors = []
             
             for gemini_model in gemini_models:
                 try:
-                    print(f"Trying Gemini model: {gemini_model}")
+                    logger.info(f"Trying Gemini model: {gemini_model}")
                     
                     url = f"https://generativelanguage.googleapis.com/v1beta/models/{gemini_model}:generateContent?key={api_key}"
                     headers = {
@@ -347,11 +373,11 @@ def query_models():
                         }
                     }
                     
-                    print(f"Sending request to Gemini API with model {gemini_model}")
+                    logger.info(f"Sending request to Gemini API with model {gemini_model}")
                     response = requests.post(url, headers=headers, json=payload)
                     response.raise_for_status()
                     response_data = response.json()
-                    print(f"Gemini API call successful with model {gemini_model}!")
+                    logger.info(f"Gemini API call successful with model {gemini_model}!")
                     
                     text_content = ""
                     if "candidates" in response_data and len(response_data["candidates"]) > 0:
@@ -365,27 +391,31 @@ def query_models():
                         'model': gemini_model,
                         'status': 'success'
                     }
-                    print(f"Gemini response length: {len(text_content)} chars")
+                    logger.info(f"Gemini response length: {len(text_content)} chars")
                     success = True
                     break
                     
                 except Exception as model_error:
-                    print(f"Failed with model {gemini_model}: {str(model_error)}")
+                    model_errors.append(f"{gemini_model}: {str(model_error)}")
+                    logger.warning(f"Failed with model {gemini_model}: {str(model_error)}")
                     continue
             
             if not success:
-                raise Exception("All Gemini models failed to generate a response")
+                error_msg = f"All Gemini models failed to generate a response. Errors: {', '.join(model_errors)}"
+                raise Exception(error_msg)
                 
         except Exception as e:
-            print(f"Gemini API call failed with error: {str(e)}")
-            results['gemini'] = {
-                'content': f"Error: {str(e)}",
-                'status': 'error'
-            }
+            logger.error(f"Gemini API call failed with error: {str(e)}")
+            results['gemini'] = handle_api_error(e, 'gemini', 'Google Gemini')
     
     # Cohere (if present)
     if api_keys.get('cohere'):
+        logger.info("Attempting Cohere API call...")
         try:
+            # Input validation
+            if not query:
+                raise ValueError("Query parameter is required")
+                
             api_key = api_keys['cohere']['key']
             cohere_model = api_keys['cohere'].get('model', 'command-r')
             
@@ -401,6 +431,7 @@ def query_models():
                 "temperature": 0.7
             }
             
+            logger.info(f"Sending request to Cohere API with model {cohere_model}")
             response = requests.post(url, headers=headers, json=payload)
             response.raise_for_status()
             response_data = response.json()
@@ -410,19 +441,27 @@ def query_models():
                 'model': cohere_model,
                 'status': 'success'
             }
+            logger.info(f"Cohere response length: {len(response_data['text'])} chars")
         except Exception as e:
-            results['cohere'] = {
-                'content': f"Error: {str(e)}",
-                'status': 'error'
-            }
+            logger.error(f"Cohere API call failed with error: {str(e)}")
+            results['cohere'] = handle_api_error(e, 'cohere', 'Cohere')
             
     # Azure OpenAI (if present)
     if api_keys.get('azure'):
+        logger.info("Attempting Azure OpenAI API call...")
         try:
+            # Input validation
+            if not query:
+                raise ValueError("Query parameter is required")
+                
             api_key = api_keys['azure']['key']
             endpoint = api_keys['azure'].get('endpoint', '')
             azure_model = api_keys['azure'].get('model', 'gpt-4')
             deployment_name = api_keys['azure'].get('deployment', 'gpt4')
+            
+            # Validate endpoint URL
+            if not endpoint or not endpoint.startswith(('http://', 'https://')):
+                raise ValueError("Invalid or missing Azure OpenAI endpoint URL")
             
             url = f"{endpoint}/openai/deployments/{deployment_name}/chat/completions?api-version=2023-05-15"
             headers = {
@@ -439,6 +478,7 @@ def query_models():
                 "max_tokens": 2048
             }
             
+            logger.info(f"Sending request to Azure OpenAI API with deployment {deployment_name}")
             response = requests.post(url, headers=headers, json=payload)
             response.raise_for_status()
             response_data = response.json()
@@ -448,11 +488,10 @@ def query_models():
                 'model': azure_model,
                 'status': 'success'
             }
+            logger.info(f"Azure OpenAI response length: {len(response_data['choices'][0]['message']['content'])} chars")
         except Exception as e:
-            results['azure'] = {
-                'content': f"Error: {str(e)}",
-                'status': 'error'
-            }
+            logger.error(f"Azure OpenAI API call failed with error: {str(e)}")
+            results['azure'] = handle_api_error(e, 'azure', 'Azure OpenAI')
     
     # Generate meta-summary if requested and if we have OpenAI or Gemini API key for summarization
     if summarize and (api_keys.get('openai') or api_keys.get('gemini')):
@@ -541,3 +580,202 @@ def logout():
     """Logout user"""
     session.pop('user', None)
     return jsonify({'success': True})
+
+@api_bp.route('/export', methods=['POST'])
+@api_error_handler
+def export_responses():
+    """Export responses in various formats (JSON, CSV, Markdown)"""
+    data = request.json
+    query = data.get('query', '')
+    responses = data.get('responses', {})
+    format_type = data.get('format', 'json')
+    include_summary = data.get('include_summary', True)
+    
+    if not query or not responses:
+        return jsonify({
+            'error': 'Query and responses are required',
+            'status': 'error'
+        }), 400
+    
+    logger.info(f"Exporting responses in {format_type} format")
+    logger.info(f"Query: {query}")
+    logger.info(f"Response models: {list(responses.keys())}")
+    
+    # Create metadata for the export
+    export_data = {
+        "metadata": {
+            "query": query,
+            "timestamp": int(time.time()),
+            "export_id": str(uuid.uuid4()),
+            "model_count": len(responses)
+        }
+    }
+    
+    # Handle different formats
+    if format_type.lower() == 'json':
+        # For JSON, just return the full data
+        export_data["responses"] = responses
+        
+        # If there's a summary and it should be included
+        if include_summary and data.get('summary'):
+            export_data["summary"] = data.get('summary')
+            
+        return jsonify({
+            'data': export_data,
+            'format': 'json',
+            'status': 'success'
+        })
+        
+    elif format_type.lower() == 'markdown':
+        # Generate markdown text
+        markdown_text = f"# AI Spectrum Results\n\n"
+        markdown_text += f"## Query\n\n{query}\n\n"
+        
+        # Add responses
+        markdown_text += "## Model Responses\n\n"
+        for model_id, response in responses.items():
+            if response.get('status') == 'success':
+                markdown_text += f"### {model_id.capitalize()} ({response.get('model', 'unknown')})\n\n"
+                markdown_text += f"{response.get('content', '')}\n\n"
+                markdown_text += "---\n\n"
+        
+        # Add summary if available
+        if include_summary and data.get('summary'):
+            summary = data.get('summary')
+            if summary.get('status') == 'success':
+                markdown_text += "## Summary Insights\n\n"
+                markdown_text += f"{summary.get('content', '')}\n\n"
+        
+        # Add footer
+        markdown_text += f"\n\n*Exported from AI Spectrum at {time.strftime('%Y-%m-%d %H:%M:%S')}*\n"
+        
+        return jsonify({
+            'data': markdown_text,
+            'format': 'markdown',
+            'status': 'success'
+        })
+        
+    elif format_type.lower() == 'csv':
+        # CSV is more challenging since we need to flatten nested data
+        # For simplicity, we'll create a CSV with model, status, and response
+        import csv
+        import io
+        
+        output = io.StringIO()
+        writer = csv.writer(output)
+        
+        # Write header
+        writer.writerow(['Query', 'Model', 'Model ID', 'Status', 'Response'])
+        
+        # Write data rows
+        for model_id, response in responses.items():
+            # Clean content for CSV (remove newlines, etc.)
+            content = response.get('content', '')
+            if content:
+                # Replace newlines and quotes for CSV compatibility
+                content = content.replace('\n', ' ').replace('\r', ' ').replace('"', '""')
+            
+            writer.writerow([
+                query,
+                model_id.capitalize(),
+                response.get('model', 'unknown'),
+                response.get('status', 'unknown'),
+                content
+            ])
+        
+        # Get the CSV data as a string
+        csv_data = output.getvalue()
+        output.close()
+        
+        return jsonify({
+            'data': csv_data,
+            'format': 'csv',
+            'status': 'success'
+        })
+        
+    else:
+        # Unsupported format
+        return jsonify({
+            'error': f'Unsupported export format: {format_type}',
+            'supported_formats': ['json', 'markdown', 'csv'],
+            'status': 'error'
+        }), 400
+
+@api_bp.route('/summarize', methods=['POST'])
+@api_error_handler
+def summarize_insights():
+    """Generate insights from multiple model responses"""
+    logger.info("\n===== GENERATING INSIGHTS =====")
+    data = request.json
+    query = data.get('query', '')
+    responses = data.get('responses', {})
+    api_keys = data.get('api_keys', {})
+    
+    logger.info(f"Query: {query}")
+    logger.info(f"Responses from models: {list(responses.keys())}")
+    logger.info(f"API Keys provided: {list(api_keys.keys())}")
+    
+    # Input validation
+    if not query:
+        return jsonify({
+            'summary': handle_api_error(
+                ValueError("Query parameter is required"), 
+                'meta-summarizer'
+            )
+        })
+        
+    if not responses:
+        return jsonify({
+            'summary': handle_api_error(
+                ValueError("No responses provided to generate insights"), 
+                'meta-summarizer'
+            )
+        })
+    
+    if len(responses) < 2:
+        return jsonify({
+            'summary': handle_api_error(
+                ValueError("At least two model responses are required for meaningful comparison"), 
+                'meta-summarizer'
+            )
+        })
+    
+    # Find the API key to use for summarization
+    summarizer_key = None
+    provider_used = None
+    preferred_providers = ['openai', 'gemini', 'anthropic', 'mistral']
+    
+    for provider in preferred_providers:
+        if provider in api_keys:
+            summarizer_key = api_keys[provider]['key']
+            provider_used = provider
+            logger.info(f"Using {provider} API key for summarization")
+            break
+    
+    if not summarizer_key:
+        # Use the first available key
+        first_provider = next(iter(api_keys))
+        summarizer_key = api_keys[first_provider]['key']
+        provider_used = first_provider
+        logger.info(f"Using {first_provider} API key for summarization")
+    
+    # Generate the summary
+    try:
+        summarizer = ResponseSummarizer(summarizer_key)
+        summary = summarizer.summarize(query, responses)
+        logger.info(f"Summarization status: {summary.get('status')}")
+        
+        # Add metadata about which model was used
+        summary['provider_used'] = provider_used
+        summary['response_count'] = len(responses)
+        summary['timestamp'] = int(time.time())
+        summary['request_id'] = str(uuid.uuid4())
+        
+        return jsonify({
+            'summary': summary
+        })
+    except Exception as e:
+        logger.error(f"Summarization error: {str(e)}")
+        return jsonify({
+            'summary': handle_api_error(e, 'meta-summarizer', provider_used)
+        })

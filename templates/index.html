@@ -60,10 +60,147 @@
     </script>
     <style>
         body {
-            background-color: #121826;
+            background-color: #040812; /* Darker background */
             color: #F1F5F9;
             min-height: 100vh;
             font-family: 'Poppins', sans-serif;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Matte overlay for the entire app */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(4, 8, 18, 0.4); /* Matte finish */
+            backdrop-filter: contrast(0.98) brightness(0.92); /* Reduced brightness */
+            pointer-events: none;
+            z-index: 10;
+            opacity: 0.4;
+        }
+        
+        /* Background subtle texture */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(1px 1px at 10% 10%, rgba(255, 255, 255, 0.05) 1px, transparent 0),
+                radial-gradient(1px 1px at 20% 30%, rgba(255, 255, 255, 0.05) 1px, transparent 0),
+                radial-gradient(1px 1px at 30% 80%, rgba(255, 255, 255, 0.05) 1px, transparent 0),
+                radial-gradient(1px 1px at 40% 20%, rgba(255, 255, 255, 0.05) 1px, transparent 0),
+                radial-gradient(1px 1px at 50% 50%, rgba(255, 255, 255, 0.05) 1px, transparent 0),
+                radial-gradient(1px 1px at 60% 60%, rgba(255, 255, 255, 0.05) 1px, transparent 0),
+                radial-gradient(1px 1px at 70% 80%, rgba(255, 255, 255, 0.05) 1px, transparent 0),
+                radial-gradient(1px 1px at 80% 40%, rgba(255, 255, 255, 0.05) 1px, transparent 0),
+                radial-gradient(1px 1px at 90% 10%, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+            background-size: 100% 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.7;
+        }
+        
+        /* Elegant matte light sources with gentle movement */
+        .light-source {
+            position: absolute;
+            width: 450px;
+            height: 450px;
+            border-radius: 50%;
+            background: radial-gradient(
+                circle at center,
+                rgba(61, 63, 132, 0.05) 0%, /* Muted purple/blue */
+                rgba(61, 63, 132, 0.02) 40%,
+                rgba(61, 63, 132, 0) 70%
+            );
+            filter: blur(40px);
+            animation: elegant-float 90s ease-in-out infinite; /* Slower animation */
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.2; /* Reduced opacity */
+            mix-blend-mode: soft-light; /* Creates a matte effect */
+        }
+        
+        .light-source:nth-child(2) {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(
+                circle at center,
+                rgba(66, 148, 147, 0.05) 0%, /* Muted teal */
+                rgba(66, 148, 147, 0.02) 40%,
+                rgba(66, 148, 147, 0) 70%
+            );
+            animation-delay: -30s;
+            animation-duration: 110s; /* Even slower */
+            opacity: 0.15;
+            mix-blend-mode: soft-light;
+        }
+        
+        .light-source:nth-child(3) {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(
+                circle at center,
+                rgba(152, 48, 105, 0.05) 0%, /* Muted magenta */
+                rgba(152, 48, 105, 0.02) 40%,
+                rgba(152, 48, 105, 0) 70%
+            );
+            animation-delay: -60s;
+            animation-duration: 130s; /* Very slow movement */
+            opacity: 0.15;
+            mix-blend-mode: soft-light;
+        }
+        
+        /* Query box specific light effect */
+        .query-light {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 12px;
+            background: linear-gradient(
+                135deg,
+                rgba(94, 96, 206, 0.05) 0%,
+                rgba(100, 223, 223, 0.05) 50%,
+                rgba(105, 48, 195, 0.05) 100%
+            );
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        @keyframes float-around {
+            0% {
+                top: 10%;
+                left: 10%;
+                opacity: 0.7;
+            }
+            25% {
+                top: 20%;
+                left: 80%;
+                opacity: 0.5;
+            }
+            50% {
+                top: 80%;
+                left: 70%;
+                opacity: 0.7;
+            }
+            75% {
+                top: 60%;
+                left: 20%;
+                opacity: 0.5;
+            }
+            100% {
+                top: 10%;
+                left: 10%;
+                opacity: 0.7;
+            }
         }
         
         /* Modern Gradient Backgrounds */
@@ -83,6 +220,18 @@
             background: linear-gradient(135deg, #6930C3, #5E60CE, #7400B8);
             background-size: 200% 200%;
             animation: gradient-shift 12s ease infinite;
+        }
+        
+        .spectrum-gradient {
+            background: linear-gradient(90deg, 
+                #FF0000, #FF9900, #FFFF00, #00FF00, #00FFFF, #0066FF, #9500FF);
+            background-size: 1400% 100%;
+            animation: rainbow-shift 10s linear infinite;
+        }
+        
+        @keyframes rainbow-shift {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
         }
         
         @keyframes gradient-shift {
@@ -142,6 +291,64 @@
             transform: rotate(45deg) translateX(100%);
         }
         
+        /* Chrome-style "Ask Anything" animated button */
+        .spectrum-btn {
+            background: linear-gradient(90deg, 
+                #FF0000, #FF9900, #FFFF00, #00FF00, #00FFFF, #0066FF, #9500FF);
+            background-size: 1400% 100%;
+            animation: rainbow-shift 10s linear infinite;
+            color: white;
+            border-radius: 20px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+        
+        .spectrum-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+        
+        .spectrum-btn:active {
+            transform: translateY(1px);
+        }
+        
+        .spectrum-btn::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            z-index: -1;
+            background: linear-gradient(90deg, 
+                #FF0000, #FF9900, #FFFF00, #00FF00, #00FFFF, #0066FF, #9500FF);
+            background-size: 1400% 100%;
+            animation: rainbow-shift 7s linear infinite;
+            filter: blur(12px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 25px;
+        }
+        
+        .spectrum-btn:hover::before {
+            opacity: 1;
+        }
+        
+        /* Animated arrow icon */
+        .animate-send-arrow {
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+        
+        .spectrum-btn:hover .animate-send-arrow {
+            transform: translate(5px, -5px) rotate(-20deg);
+        }
+        
         /* Input styling */
         .retro-input {
             background-color: #121826;
@@ -157,6 +364,128 @@
             outline: none;
         }
         
+        /* Glowing query box styling - subtle version */
+        .glowing-input-container {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        
+        .glowing-input {
+            width: 100%;
+            background-color: rgba(18, 24, 38, 0.95); /* More opaque background for better readability */
+            border: 1px solid rgba(94, 96, 206, 0.4);
+            border-radius: 12px;
+            color: #F8FAFC; /* Brighter text for better readability */
+            font-family: 'Space Mono', monospace;
+            font-size: 1rem;
+            padding: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Add shadow for better text readability */
+        }
+        
+        .glowing-input:focus {
+            outline: none;
+            border-color: rgba(94, 96, 206, 0.8);
+            background-color: rgba(18, 24, 38, 0.98); /* Even more opaque on focus */
+        }
+        
+        /* Subtle outline glow instead of large color areas */
+        .input-glow {
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            border-radius: 13px; /* Slightly larger than the input */
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            box-shadow: 0 0 0 1px rgba(100, 223, 223, 0.1);
+        }
+        
+        .input-glow-red {
+            border-left: 1px solid rgba(255, 0, 0, 0.2);
+            border-top: 1px solid rgba(255, 0, 0, 0.1);
+            box-shadow: 0 0 8px rgba(255, 0, 0, 0.15);
+            filter: blur(3px);
+        }
+        
+        .input-glow-blue {
+            border-right: 1px solid rgba(0, 102, 255, 0.2);
+            border-bottom: 1px solid rgba(0, 102, 255, 0.1);
+            box-shadow: 0 0 8px rgba(0, 102, 255, 0.15);
+            filter: blur(3px);
+        }
+        
+        .input-glow-purple {
+            box-shadow: 0 0 10px rgba(149, 0, 255, 0.1);
+            filter: blur(4px);
+        }
+        
+        /* Container for the outline light effect */
+        .query-line-light {
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 14px;
+            border: 2px solid transparent;
+            background: linear-gradient(135deg, 
+                rgba(94, 96, 206, 0.2),
+                rgba(100, 223, 223, 0.2),
+                rgba(105, 48, 195, 0.2)) border-box;
+            -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: destination-out;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1;
+        }
+        
+        .glowing-input:focus ~ .input-glow {
+            opacity: 0.7; /* Reduced opacity */
+        }
+        
+        .glowing-input:focus ~ .query-line-light {
+            opacity: 1;
+        }
+        
+        /* Spectrum ripple effect */
+        .spectrum-ripple {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .spectrum-ripple::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: inherit;
+            box-shadow: 0 0 30px 15px rgba(94, 96, 206, 0.2);
+            opacity: 0;
+            z-index: -1;
+            animation: ripple 3s ease-out infinite;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0.95);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+        
         /* Markdown content styling */
         .markdown-content pre {
             background-color: #121826;
@@ -164,14 +493,19 @@
             border-radius: 0.5rem;
             overflow-x: auto;
             border: 1px solid #374151;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
         .markdown-content code {
             font-family: 'Space Mono', monospace;
-            color: #CBD5E1;
+            color: #F1F5F9; /* Brighter code text */
+            font-size: 0.9rem;
+            line-height: 1.5;
         }
         .markdown-content p {
             margin-bottom: 1rem;
             line-height: 1.6;
+            font-size: 1rem;
+            color: #F1F5F9; /* Brighter paragraph text */
         }
         .markdown-content h1, .markdown-content h2, .markdown-content h3, 
         .markdown-content h4, .markdown-content h5, .markdown-content h6 {
@@ -179,7 +513,8 @@
             margin-bottom: 1rem;
             font-weight: bold;
             font-family: 'DM Serif Display', serif;
-            color: #5E60CE;
+            color: #8B5CF6; /* Brighter purple for headings */
+            text-shadow: 0 0 8px rgba(94, 96, 206, 0.3); /* Subtle glow */
         }
         .markdown-content h1 { font-size: 1.8rem; }
         .markdown-content h2 { font-size: 1.6rem; }
@@ -187,17 +522,57 @@
         .markdown-content ul, .markdown-content ol {
             margin-left: 1.5rem;
             margin-bottom: 1rem;
+            color: #F1F5F9; /* Brighter list text */
         }
         .markdown-content li {
             margin-bottom: 0.5rem;
+            line-height: 1.6;
         }
         .markdown-content blockquote {
             border-left: 4px solid #64DFDF;
             padding-left: 1rem;
             margin-bottom: 1rem;
             background-color: rgba(31, 41, 55, 0.7);
-            padding: 0.5rem 0.5rem 0.5rem 1rem;
+            padding: 0.8rem 0.8rem 0.8rem 1.2rem;
             border-radius: 0.25rem;
+            font-style: italic;
+            color: #CBD5E1; /* Slightly muted but still readable */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        /* Improve link visibility */
+        .markdown-content a {
+            color: #64DFDF; /* Bright teal for links */
+            text-decoration: underline;
+            transition: color 0.2s ease;
+        }
+        .markdown-content a:hover {
+            color: #8B5CF6; /* Purple on hover */
+            text-decoration: underline;
+        }
+        /* Add spacing between list items */
+        .markdown-content ul li, .markdown-content ol li {
+            padding: 0.2rem 0;
+        }
+        /* Improve tables */
+        .markdown-content table {
+            border-collapse: collapse;
+            margin: 1rem 0;
+            width: 100%;
+        }
+        .markdown-content th {
+            background-color: rgba(94, 96, 206, 0.2);
+            color: #F1F5F9;
+            font-weight: bold;
+            padding: 0.75rem;
+            text-align: left;
+            border: 1px solid #374151;
+        }
+        .markdown-content td {
+            padding: 0.75rem;
+            border: 1px solid #374151;
+        }
+        .markdown-content tr:nth-child(even) {
+            background-color: rgba(31, 41, 55, 0.5);
         }
         
         /* Layout transitions */
@@ -400,9 +775,13 @@
                 <button id="open-sidebar" class="text-frost-dark hover:text-accent-secondary p-1 rounded transition-colors duration-300">
                     <i class="fas fa-bars"></i>
                 </button>
-                <h1 class="text-xl font-serif font-bold text-accent-primary animate-pulse-slow">
-                    AI Spectrum <span class="text-xs opacity-75">v1.0</span>
-                </h1>
+                <div class="flex flex-col items-center bg-slate-darkest bg-opacity-60 px-4 py-2 rounded-lg backdrop-blur-sm">
+                    <h1 class="text-2xl font-serif font-bold spectrum-gradient text-transparent bg-clip-text">
+                        <span style="text-shadow: 0 0 10px rgba(255,255,255,0.1);">AI Spectrum</span> 
+                        <span class="text-xs text-frost-light opacity-75">v1.0</span>
+                    </h1>
+                    <p class="text-xs text-frost-light font-medium mt-1">Multiple perspectives, one unified insight</p>
+                </div>
                 <div class="flex items-center">
                     <div id="active-models-count" class="text-sm text-frost-dark mr-3 font-mono">0 models active</div>
                     <button id="toggle-layout" class="text-frost-dark hover:text-accent-secondary p-1 rounded transition-colors duration-300">
@@ -410,56 +789,118 @@
                     </button>
                 </div>
             </header>
+            
+            <!-- Light sources -->
+            <div class="light-source"></div>
+            <div class="light-source"></div>
+            <div class="light-source"></div>
 
             <!-- Main content area -->
             <div class="flex-1 overflow-auto p-4">
                 <!-- Query Input -->
-                <div class="retro-card rounded-lg p-5 mb-6 cool-gradient">
-                    <div class="mb-3">
-                        <textarea id="query-input" rows="3" class="terminal-font w-full px-3 py-3 retro-input focus:ring-2 focus:ring-accent-primary focus:border-transparent" 
-                            placeholder="Enter your query here..."></textarea>
+                <div class="glass-panel rounded-lg p-5 mb-6 spectrum-ripple">
+                    <h2 class="text-center mb-4 spectrum-gradient text-transparent bg-clip-text font-serif font-bold text-xl">Ask Anything</h2>
+                    
+                    <div class="glowing-input-container mb-4">
+                        <textarea id="query-input" rows="3" class="glowing-input" 
+                            placeholder="Enter your query to get responses from all AI models..."></textarea>
+                        <div class="input-glow input-glow-red"></div>
+                        <div class="input-glow input-glow-blue"></div>
+                        <div class="input-glow input-glow-purple"></div>
+                        <div class="query-line-light"></div>
+                        <div class="query-light"></div>
                     </div>
+                    
                     <div class="flex justify-end">
-                        <button id="submit-btn" class="retro-btn text-frost-light font-medium py-2 px-6 rounded-md flex items-center shadow-lg">
-                            <i class="fas fa-paper-plane mr-2 animate-float"></i> Send to All Models
+                        <button id="submit-btn" class="spectrum-btn font-medium py-2 px-6 rounded-full flex items-center shadow-lg">
+                            <span class="mr-2">Send to All Models</span>
+                            <i class="fas fa-paper-plane animate-send-arrow"></i>
                         </button>
                     </div>
                 </div>
 
                 <!-- Loading Indicator -->
-                <div id="loading-indicator" class="hidden text-center my-8">
-                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-3 border-b-3 border-accent-primary"></div>
-                    <p class="mt-3 text-frost-dark font-mono">Gathering insights from AI models...</p>
+                <div id="loading-indicator" class="hidden text-center my-8 relative">
+                    <!-- Colorful spinner with spectrum colors -->
+                    <div class="spectrum-gradient inline-block w-16 h-16 rounded-full p-1 animate-spin">
+                        <div class="bg-slate-darkest w-full h-full rounded-full flex items-center justify-center">
+                            <div class="w-12 h-12 rounded-full border-t-2 border-b-2 border-white animate-spin"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pulse effect behind the spinner -->
+                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-slate-darkest rounded-full opacity-10 animate-pulse-slow -z-10"></div>
+                    
+                    <p class="mt-5 text-frost-light font-mono animate-pulse-slow">Refracting knowledge through the AI Spectrum...</p>
                 </div>
 
                 <!-- Summary Section (initially hidden) -->
-                <div id="summary-container" class="retro-card accent-gradient rounded-lg p-5 mb-6 hidden">
-                    <div class="flex items-center mb-4">
-                        <span class="bg-accent-secondary text-slate-darkest px-3 py-1 rounded-md text-xs mr-3 font-mono font-bold">AI INSIGHTS</span>
-                        <h3 class="text-lg font-serif font-medium text-frost-light">Consensus & Key Insights</h3>
+                <div id="summary-container" class="glass-panel rounded-lg p-5 mb-6 hidden spectrum-ripple">
+                    <div class="flex flex-col items-center mb-4">
+                        <span class="spectrum-gradient px-4 py-1 rounded-full text-sm mb-2 font-mono font-bold text-white">SPECTRUM INSIGHTS</span>
+                        <h3 class="text-lg font-serif font-medium text-frost-light">A Unified Perspective From Multiple AI Models</h3>
                     </div>
-                    <div id="summary-content" class="markdown-content text-frost-light terminal-font p-3 bg-slate-dark bg-opacity-50 rounded-lg">
+                    <div id="summary-content" class="markdown-content text-frost-light terminal-font p-4 bg-slate-dark bg-opacity-30 rounded-lg border border-slate-light border-opacity-20 backdrop-blur-sm">
                         <!-- Summary content will be inserted here -->
                     </div>
                 </div>
 
                 <!-- Response Grid - This will be populated dynamically -->
-                <div id="responses-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8 hidden">
+                <div id="responses-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-4 hidden">
                     <!-- Will be populated dynamically -->
                 </div>
                 
-                <!-- Follow-up Query Area -->
-                <div id="followup-container" class="retro-card primary-gradient rounded-lg p-5 mb-6 hidden">
-                    <h3 class="text-lg font-serif font-medium mb-3 text-accent-secondary">Follow-up Question</h3>
-                    <div class="mb-4">
-                        <textarea id="followup-input" rows="2" class="terminal-font w-full px-3 py-3 retro-input focus:ring-2 focus:ring-accent-primary focus:border-transparent" 
-                            placeholder="Ask a follow-up question..."></textarea>
-                    </div>
-                    <div class="flex justify-end">
-                        <button id="followup-btn" class="retro-btn text-frost-light font-medium py-2 px-6 rounded-md flex items-center shadow-lg">
-                            <i class="fas fa-reply mr-2 animate-float"></i> Send Follow-up
+                <!-- Insights Button -->
+                <div id="insights-btn-container" class="flex justify-center mb-8 hidden">
+                    <button id="generate-insights-btn" class="spectrum-btn font-medium py-3 px-8 rounded-full flex items-center shadow-lg">
+                        <i class="fas fa-lightbulb mr-3 text-lg"></i>
+                        <span>Generate Insights From All Models</span>
+                        <div class="ml-3 relative">
+                            <div class="w-4 h-4 bg-white rounded-full opacity-30 absolute top-0 left-0 animate-ping"></div>
+                            <div class="w-4 h-4 bg-white rounded-full relative"></div>
+                        </div>
+                    </button>
+                </div>
+                
+                <!-- Export Button Container -->
+                <div id="export-btn-container" class="flex flex-col items-center mb-8 hidden">
+                    <h3 class="text-center mb-4 spectrum-gradient text-transparent bg-clip-text font-serif font-bold text-lg">Export Results</h3>
+                    <div class="flex space-x-4">
+                        <button id="export-json-btn" class="retro-btn py-2 px-4 rounded-md flex items-center justify-center">
+                            <i class="fas fa-file-code mr-2"></i> JSON
+                        </button>
+                        <button id="export-markdown-btn" class="retro-btn py-2 px-4 rounded-md flex items-center justify-center">
+                            <i class="fas fa-file-alt mr-2"></i> Markdown
+                        </button>
+                        <button id="export-csv-btn" class="retro-btn py-2 px-4 rounded-md flex items-center justify-center">
+                            <i class="fas fa-file-csv mr-2"></i> CSV
                         </button>
                     </div>
+                </div>
+                
+                <!-- Follow-up Query Area -->
+                <div id="followup-container" class="glass-panel rounded-lg p-5 mb-6 hidden">
+                    <h3 class="text-lg font-serif font-medium mb-3 spectrum-gradient text-transparent bg-clip-text">Deepen Your Exploration</h3>
+                    <div class="glowing-input-container mb-4">
+                        <textarea id="followup-input" rows="2" class="glowing-input" 
+                            placeholder="Ask a follow-up question to explore further..."></textarea>
+                        <div class="input-glow input-glow-red"></div>
+                        <div class="input-glow input-glow-blue"></div>
+                        <div class="input-glow input-glow-purple"></div>
+                        <div class="query-line-light"></div>
+                        <div class="query-light"></div>
+                    </div>
+                    <div class="flex justify-end">
+                        <button id="followup-btn" class="spectrum-btn text-white font-medium py-2 px-6 rounded-full flex items-center shadow-lg">
+                            <span class="mr-2">Continue Exploration</span>
+                            <i class="fas fa-reply animate-send-arrow"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Attribution at bottom -->
+                <div class="text-center text-xs text-frost-dark opacity-70 mt-10 mb-6">
+                    <p>AI Spectrum: Where multiple AI perspectives converge into unified insight</p>
                 </div>
             </div>
         </div>
@@ -475,12 +916,13 @@
             
             <div class="p-4">
                 <div class="mb-6">
-                    <p class="text-sm mb-4 text-frost-medium">Test and validate your API keys before using them. The system will verify if your key is working properly.</p>
+                    <h3 class="text-center mb-4 spectrum-gradient text-transparent bg-clip-text font-serif font-bold text-lg">Power Your AI Spectrum</h3>
+                    <p class="text-sm mb-5 text-frost-medium">Add API keys to unlock the full spectrum of AI models. Each key adds a new lens to your knowledge exploration.</p>
                 
-                    <div class="space-y-4">
+                    <div class="glass-panel bg-opacity-30 rounded-lg p-5 space-y-5 spectrum-ripple">
                         <div>
-                            <label class="block text-sm font-medium text-frost-light mb-1">Provider</label>
-                            <select id="api-test-provider" class="w-full px-3 py-2 retro-input rounded-md focus:ring-2 focus:ring-accent-primary focus:border-transparent">
+                            <label class="block text-sm font-medium mb-2 spectrum-gradient text-transparent bg-clip-text">AI Provider</label>
+                            <select id="api-test-provider" class="glowing-input rounded-lg w-full">
                                 <option value="">Select a provider</option>
                                 <option value="openai">OpenAI</option>
                                 <option value="anthropic">Anthropic</option>
@@ -490,16 +932,19 @@
                             </select>
                         </div>
                         
-                        <div>
-                            <label class="block text-sm font-medium text-frost-light mb-1">API Key</label>
-                            <input type="password" id="api-test-key" class="w-full px-3 py-2 retro-input rounded-md focus:ring-2 focus:ring-accent-primary focus:border-transparent">
+                        <div class="glowing-input-container">
+                            <label class="block text-sm font-medium mb-2 spectrum-gradient text-transparent bg-clip-text">API Key</label>
+                            <input type="password" id="api-test-key" class="glowing-input">
+                            <div class="input-glow input-glow-red"></div>
+                            <div class="input-glow input-glow-blue"></div>
+                            <div class="input-glow input-glow-purple"></div>
                         </div>
                         
-                        <button id="test-api-btn" class="w-full retro-btn text-frost-light py-2 px-4 rounded-md flex items-center justify-center">
-                            <i class="fas fa-vial mr-2 animate-float"></i> Test API Key
+                        <button id="test-api-btn" class="w-full spectrum-btn py-3 px-4 rounded-full flex items-center justify-center">
+                            <i class="fas fa-vial mr-2 animate-send-arrow"></i> Test API Key
                         </button>
                         
-                        <div id="api-test-result" class="p-4 rounded-md border border-slate-light border-opacity-20 bg-slate-darkest hidden">
+                        <div id="api-test-result" class="p-4 rounded-lg border border-slate-light border-opacity-20 bg-slate-darkest bg-opacity-50 backdrop-blur-sm hidden">
                             <!-- Test results will appear here -->
                         </div>
                     </div>
@@ -507,15 +952,15 @@
                 
                 <!-- Saved API Keys -->
                 <div>
-                    <h3 class="text-md font-serif font-medium mb-3 text-accent-primary border-b border-slate-light border-opacity-20 pb-2">Saved API Keys</h3>
+                    <h3 class="text-md font-serif font-medium mb-3 spectrum-gradient text-transparent bg-clip-text border-b border-slate-light border-opacity-20 pb-2">Your AI Spectrum Keys</h3>
                     <div id="saved-keys-container" class="space-y-3">
                         <!-- Will be populated dynamically -->
                     </div>
                 </div>
                 
                 <div class="mt-8">
-                    <button id="save-all-keys" class="w-full retro-btn text-frost-light py-2 px-4 rounded-md flex items-center justify-center">
-                        <i class="fas fa-save mr-2 animate-float"></i> Save All API Keys
+                    <button id="save-all-keys" class="w-full spectrum-btn py-3 px-4 rounded-full flex items-center justify-center">
+                        <i class="fas fa-save mr-2 animate-send-arrow"></i> Save All API Keys
                     </button>
                 </div>
             </div>
